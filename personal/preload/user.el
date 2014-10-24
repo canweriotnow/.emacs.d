@@ -1,6 +1,39 @@
 (load (expand-file-name "~/quicklisp/slime-helper.el"))
 
-(setq inferior-lisp-program "lein repl")
+
+;; Common Lisp stuff here.
+(setq inferior-lisp-program "sbcl")
+
+(add-to-list 'auto-mode-alist '("\\.lisp$" . lisp-mode))
+(add-to-list 'auto-mode-alist '("\\.cl$" . lisp-mode))
+(add-to-list 'auto-mode-alist '("\\.asd$" . lisp-mode))
+
+(require 'slime)
+(slime-setup)
+(eval-after-load "slime"
+  '(progn
+     (setq slime-complete-symbol*-fancy t
+           slime-complete-symbol-function 'slime-fuzzy-complete-symbol
+           slime-when-complete-filename-expand t
+           slime-truncate-lines nil
+           slime-autodoc-use-multiline-p t)
+     (slime-setup '(slime-fancy slime-asdf))
+     (define-key slime-repl-mode-map (kbd "C-c ;")
+       'slime-insert-balanced-comments)
+     (define-key slime-repl-mode-map (kbd "C-c M-;")
+       'slime-remove-balanced-comments)
+     (define-key slime-mode-map (kbd "C-c ;")
+       'slime-insert-balanced-comments)
+     (define-key slime-mode-map (kbd "C-c M-;")
+       'slime-remove-balanced-comments)
+     (define-key slime-mode-map (kbd "RET") 'newline-and-indent)
+     (define-key slime-mode-map (kbd "C-j") 'newline)))
+
+(add-hook 'lisp-mode-hook
+          (lambda ()
+            (cond ((not (featurep 'slime))
+                   (require 'slime)
+                   (normal-mode)))))
 
 (setq prelude-guru nil)
 
@@ -17,6 +50,9 @@
 
 (require 'package)
 
+;(require 'twittering-mode)
+;(setq twittering-use-master-password t)
+
 
 ;(require 'org-mobile-sync)
 ;(org-mobile-sync-mode 1)
@@ -28,10 +64,15 @@
 (add-to-list 'package-archives
              '("org" . "http://orgmode.org/elpa/") t)
 
+(global-prettify-symbols-mode +1)
 
 (package-initialize)
 
 (require 'smartparens-config)
+
+(require 'magit-gh-pulls)
+
+(add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)
 
 (add-hook 'cider-repl-mode-hook 'smartparens-strict-mode)
 (add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
@@ -103,6 +144,10 @@
                                            :base-extension "css\\|pdf\\|png\\|jpg\\|gif\\|svg"
                                            :publishing-function org-publish-attachment
                                            :recursive t
-                                           :author nil)))))
+                                           :author nil))
+
+          ;;static articles
+          ,@(my-static-components))))
+
 
 (provide 'user)
