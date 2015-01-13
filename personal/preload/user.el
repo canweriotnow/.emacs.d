@@ -40,6 +40,8 @@
 
 (setq auto-save-default nil)
 
+
+;; Org mode stuff here
 (setq org-directory "~/.org")
 
 (setq org-agenda-files (list "~/.org/anestuary.org"
